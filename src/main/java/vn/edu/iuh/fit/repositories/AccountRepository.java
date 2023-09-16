@@ -5,8 +5,11 @@ import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Query;
 import vn.edu.iuh.fit.connection.Connection;
 import vn.edu.iuh.fit.entities.Account;
+import vn.edu.iuh.fit.entities.Role;
 import vn.edu.iuh.fit.entities.Status;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class AccountRepository extends CRUDRepository<Account,String>{
@@ -38,6 +41,20 @@ public class AccountRepository extends CRUDRepository<Account,String>{
             e.printStackTrace();
         }
         return Optional.empty();
+    }
+    public List<Account> getAccountByRoleId(String roleId) {
+        try {
+            List resultList = entityManager.createNativeQuery("select  * from account where status = ?2 AND id IN (SELECT ga.account_id FROM grant_access ga WHERE ga.role_id = ?1)", Account.class)
+                    .setParameter(1, roleId)
+                    .setParameter(2, Status.active)
+                    .getResultList();
+            return resultList;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return new ArrayList<>();
     }
 }
 
